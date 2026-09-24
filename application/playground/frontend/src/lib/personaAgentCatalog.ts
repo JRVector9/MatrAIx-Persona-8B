@@ -243,6 +243,7 @@ const SUBSCRIPTION_AGENT_BY_AUTH: Record<Exclude<PersonaAuth, "api">, string> = 
 const CODEX_REASONING_EFFORTS: Record<string, string[]> = {
   "openai/gpt-5.5": ["low", "medium", "high", "xhigh"],
   "openai/gpt-6-sol": ["low", "medium", "high", "xhigh", "max", "ultra"],
+  "openai/gpt-6-luna": ["low", "medium", "high", "xhigh", "max"],
 };
 
 /** persona-codex default `model_reasoning_effort` (harbor CLI flag default). */

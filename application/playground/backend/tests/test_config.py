@@ -67,6 +67,7 @@ def test_options_knob_values_match_allowed(config_manager):
     assert "anthropic/claude-opus-4-8" in PERSONA_MODEL_OPTIONS
     assert "anthropic/claude-sonnet-5" in PERSONA_MODEL_OPTIONS
     assert "openai/gpt-6-sol" in PERSONA_MODEL_OPTIONS
+    assert "openai/gpt-6-luna" in PERSONA_MODEL_OPTIONS
     prices = {o["value"]: o for o in knobs["personaModel"]["options"]}
     assert prices["anthropic/claude-sonnet-5"]["inputCostPer1M"] == 2
     assert prices["anthropic/claude-sonnet-5"]["outputCostPer1M"] == 10

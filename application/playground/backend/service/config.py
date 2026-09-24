@@ -68,6 +68,10 @@ PERSONA_MODEL_KNOB_META: Dict[str, Dict[str, str]] = {
         "label": "GPT-6 Sol",
         "description": "Latest OpenAI persona simulation.",
     },
+    "openai/gpt-6-luna": {
+        "label": "GPT-6 Luna",
+        "description": "Lower-cost GPT-6 persona simulation.",
+    },
     "gemini/gemini-2.5-flash": {
         "label": "Gemini 2.5 Flash",
         "description": "Google persona simulation with lower cost.",

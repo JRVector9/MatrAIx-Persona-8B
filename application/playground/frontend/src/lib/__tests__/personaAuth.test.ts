@@ -15,6 +15,7 @@ const MODEL_OPTIONS = [
   { value: "openai/gpt-5.4", label: "GPT-5.4" },
   { value: "openai/gpt-5.5", label: "GPT-5.5" },
   { value: "openai/gpt-6-sol", label: "GPT-6 Sol" },
+  { value: "openai/gpt-6-luna", label: "GPT-6 Luna" },
   { value: "google/gemini-2.5-pro", label: "Gemini 2.5 Pro" },
 ];
 
@@ -52,6 +53,7 @@ describe("persona auth", () => {
     expect(personaAuthModelOptions("codex", MODEL_OPTIONS).map((opt) => opt.value)).toEqual([
       "openai/gpt-5.5",
       "openai/gpt-6-sol",
+      "openai/gpt-6-luna",
     ]);
   });
 
@@ -64,6 +66,13 @@ describe("persona auth", () => {
       "xhigh",
       "max",
       "ultra",
+    ]);
+    expect(codexReasoningEfforts("openai/gpt-6-luna")).toEqual([
+      "low",
+      "medium",
+      "high",
+      "xhigh",
+      "max",
     ]);
     expect(codexReasoningEfforts("anthropic/claude-sonnet-5")).toEqual([]);
   });
