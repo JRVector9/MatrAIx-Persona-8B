@@ -18,7 +18,10 @@ The module imports only the stdlib so it is safe to import anywhere.
 from __future__ import annotations
 
 import functools
+import json
 import os
+import re
+import urllib.request
 from typing import Dict, List, Optional
 
 PERSONA_MODEL_ENV = "MATRIX_PERSONA_MODEL"
@@ -179,6 +182,60 @@ PERSONA_MODEL_KNOB_META: Dict[str, Dict[str, str]] = {
 }
 
 PERSONA_MODEL_OPTIONS = list(PERSONA_MODEL_KNOB_META.keys())
+
+
+# Proxy entries that are not chat models (embeddings, speech, rerankers).
+_NON_CHAT_MODEL = re.compile(r"whisper|bge|embed|rerank|tts", re.IGNORECASE)
+OPENAI_PROXY_GROUP = "OpenAI-compatible"
+_PROXY_MODELS_CACHE: Dict[tuple[str, str], tuple[str, ...]] = {}
+
+
+def _fetch_proxy_model_ids(base_url: str, api_key: str) -> List[str]:
+    request = urllib.request.Request(
+        "{}/models".format(base_url),
+        headers={
+            "Authorization": "Bearer {}".format(api_key),
+            # Proxies behind bot filters 403 the default Python-urllib agent.
+            "User-Agent": "matraix-playground",
+        },
+    )
+    with urllib.request.urlopen(request, timeout=10) as response:
+        payload = json.load(response)
+    return [
+        str(item["id"])
+        for item in payload.get("data", [])
+        if isinstance(item, dict) and item.get("id")
+    ]
+
+
+def openai_proxy_persona_models() -> tuple[str, ...]:
+    """Chat models served by an ``OPENAI_BASE_URL`` proxy, as ``openai/<id>``.
+
+    Proxy mode (see ``playground.model_client``) routes ``openai/*`` persona
+    calls to that endpoint, so its own model ids become selectable. Empty when
+    no proxy is configured or its model list cannot be read; a successful
+    listing is cached for the process (restart the backend to refresh).
+    """
+    base_url = (
+        os.environ.get("OPENAI_BASE_URL") or os.environ.get("OPENAI_API_BASE") or ""
+    ).strip().rstrip("/")
+    if not base_url:
+        return ()
+    api_key = os.environ.get("OPENAI_API_KEY", "")
+    cached = _PROXY_MODELS_CACHE.get((base_url, api_key))
+    if cached is not None:
+        return cached
+    try:
+        model_ids = _fetch_proxy_model_ids(base_url, api_key)
+    except Exception:
+        return ()
+    models = tuple(
+        "openai/{}".format(model_id)
+        for model_id in model_ids
+        if not _NON_CHAT_MODEL.search(model_id)
+    )
+    _PROXY_MODELS_CACHE[(base_url, api_key)] = models
+    return models
 
 
 @functools.lru_cache(maxsize=None)
@@ -487,6 +544,18 @@ class ConfigManager:
                 if price is not None:
                     view["inputCostPer1M"], view["outputCostPer1M"] = price
                 option_views.append(view)
+            proxy_models = openai_proxy_persona_models() if key == "personaModel" else ()
+            for value in proxy_models:
+                if value in allowed_values:
+                    continue
+                option_views.append(
+                    {
+                        "value": value,
+                        "label": value.split("/", 1)[1],
+                        "description": "Served by the OpenAI-compatible proxy.",
+                        "group": OPENAI_PROXY_GROUP,
+                    }
+                )
             knobs.append(
                 {
                     "key": key,

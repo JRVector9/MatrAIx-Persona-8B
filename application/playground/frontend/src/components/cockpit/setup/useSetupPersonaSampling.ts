@@ -458,7 +458,7 @@ export function useSetupPersonaSampling(
     personaModelKnob?.options.map((o) => ({
       value: o.value,
       label: o.label,
-      group: personaModelProviderLabel(o.value),
+      group: o.group ?? personaModelProviderLabel(o.value),
       meta:
         o.inputCostPer1M != null && o.outputCostPer1M != null
           ? t("personaSetup.modelPrice", {

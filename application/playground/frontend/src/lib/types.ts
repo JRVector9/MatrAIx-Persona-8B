@@ -15,6 +15,8 @@ export interface ConfigOptionValue {
   /** Persona models only: LiteLLM list price in USD per 1M tokens. */
   inputCostPer1M?: number;
   outputCostPer1M?: number;
+  /** Persona models only: menu group override (e.g. OpenAI-compatible proxy models). */
+  group?: string;
 }
 
 export interface ConfigKnob {

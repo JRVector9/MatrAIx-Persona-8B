@@ -194,7 +194,9 @@ def resolve_cli_subscription_env(agent_name: str) -> dict[str, str]:
                     auth_json
                 )
             )
-        return {"CODEX_FORCE_AUTH_JSON": "1"}
+        # Blank a global OPENAI_BASE_URL proxy: persona-codex forwards it into the
+        # Codex config, which would send the ChatGPT login to that proxy.
+        return {"CODEX_FORCE_AUTH_JSON": "1", "OPENAI_BASE_URL": ""}
     raise ValueError(
         "cliSubscription supports persona-claude-code and persona-codex, not {}".format(
             agent_name

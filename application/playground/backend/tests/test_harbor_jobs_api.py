@@ -248,7 +248,11 @@ def test_launch_harbor_job_codex_subscription_forces_auth_json(
     resp = _subscription_launch(client, "persona-codex", "openai/gpt-5.5")
     assert resp.status_code == 200
     assert fake_harbor_jobs.launches[-1]["agent_name"] == "persona-codex"
-    assert fake_harbor_jobs.launches[-1]["extra_launch_env"] == {"CODEX_FORCE_AUTH_JSON": "1"}
+    # A global OPENAI_BASE_URL proxy must never receive the ChatGPT login.
+    assert fake_harbor_jobs.launches[-1]["extra_launch_env"] == {
+        "CODEX_FORCE_AUTH_JSON": "1",
+        "OPENAI_BASE_URL": "",
+    }
 
 
 def test_launch_harbor_job_codex_subscription_requires_auth_json(
@@ -297,6 +301,24 @@ def test_launch_harbor_job_rejects_reasoning_effort_for_non_codex(client, fake_h
     assert resp.status_code == 422
     assert "persona-codex" in resp.json()["detail"]
     assert fake_harbor_jobs.launches == []
+
+
+def test_launch_harbor_job_accepts_openai_proxy_model(client, fake_harbor_jobs, monkeypatch):
+    from backend.service import config as config_module
+
+    monkeypatch.setenv("OPENAI_BASE_URL", "https://proxy.example/v1")
+    monkeypatch.setattr(config_module, "_PROXY_MODELS_CACHE", {})
+    monkeypatch.setattr(config_module, "_fetch_proxy_model_ids", lambda base, key: ["qwen3:8b"])
+    resp = client.post(
+        "/api/harbor/jobs",
+        json={
+            "taskPath": "application/tasks/example-survey_product-feedback",
+            "personaIds": ["0042"],
+            "personaModel": "openai/qwen3:8b",
+        },
+    )
+    assert resp.status_code == 200
+    assert fake_harbor_jobs.launches[-1]["persona_model"] == "openai/qwen3:8b"
 
 
 def test_launch_harbor_job_rejects_unknown_reasoning_effort(client, fake_harbor_jobs):

@@ -30,7 +30,7 @@ from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from backend.service.config import PERSONA_MODEL_OPTIONS
+from backend.service.config import PERSONA_MODEL_OPTIONS, openai_proxy_persona_models
 
 __all__ = [
     "HealthResponse",
@@ -787,7 +787,7 @@ class HarborJobLaunchRequest(BaseModel):
     def _validate_persona_model(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
             return value
-        if value not in SUPPORTED_PERSONA_MODELS:
+        if value not in SUPPORTED_PERSONA_MODELS and value not in openai_proxy_persona_models():
             raise ValueError(
                 "personaModel must be one of {}".format(list(SUPPORTED_PERSONA_MODELS))
             )
