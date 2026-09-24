@@ -553,6 +553,8 @@
   "personaSetup.allocationTitle.perCell": "Pega N personas de cada combinação de estratificação",
   "personaSetup.allocationTitle.proportional": "Aloca o tamanho da amostra pela população da célula (Hamilton)",
   "personaSetup.allocationTitle.proportionalShares": "Aloca o tamanho da amostra pelas cotas declaradas (Hamilton)",
+  "personaSetup.cliSubscription": "Usar assinatura do Claude Code",
+  "personaSetup.cliSubscriptionHint": "Executa no Docker com o seu login local da CLI do Claude Code (claude setup-token) em vez de uma chave de API. Somente modelos da Anthropic.",
   "personaSetup.cohortLocked": "Coorte bloqueada para esta execução — use Redefinir para mudar personas ou ajustes de amostra.",
   "personaSetup.cohortReady": "{pool} · coorte pronta",
   "personaSetup.common.cancel": "Cancelar",

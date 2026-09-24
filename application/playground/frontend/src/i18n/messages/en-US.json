@@ -553,6 +553,8 @@
   "personaSetup.allocationTitle.perCell": "Take N personas from every stratify combination",
   "personaSetup.allocationTitle.proportional": "Allocate sample size by cell population (Hamilton)",
   "personaSetup.allocationTitle.proportionalShares": "Allocate sample size by declared target shares (Hamilton)",
+  "personaSetup.cliSubscription": "Use Claude Code subscription",
+  "personaSetup.cliSubscriptionHint": "Runs in Docker via your local Claude Code CLI login (claude setup-token) instead of an API key. Anthropic models only.",
   "personaSetup.cohortLocked": "Cohort locked for this run — use Reset to change personas or sample settings.",
   "personaSetup.cohortReady": "{pool} · cohort ready",
   "personaSetup.common.cancel": "Cancel",

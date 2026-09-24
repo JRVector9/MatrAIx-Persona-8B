@@ -553,6 +553,8 @@
   "personaSetup.allocationTitle.perCell": "從每個分層組合取 N 個數位人",
   "personaSetup.allocationTitle.proportional": "依各格人口數分配取樣規模（Hamilton）",
   "personaSetup.allocationTitle.proportionalShares": "依宣告的目標比例分配取樣規模（Hamilton）",
+  "personaSetup.cliSubscription": "使用 Claude Code 訂閱",
+  "personaSetup.cliSubscriptionHint": "透過本機 Claude Code CLI 登入（claude setup-token）在 Docker 中執行，無需 API 金鑰。僅支援 Anthropic 模型。",
   "personaSetup.cohortLocked": "本次執行已鎖定群組——使用重設修改數位人或抽樣設定。",
   "personaSetup.cohortReady": "{pool} · 群組已就緒",
   "personaSetup.common.cancel": "取消",

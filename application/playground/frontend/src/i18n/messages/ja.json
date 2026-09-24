@@ -553,6 +553,8 @@
   "personaSetup.allocationTitle.perCell": "層化の各組み合わせから N 人ずつ取得",
   "personaSetup.allocationTitle.proportional": "セル人口に応じてサンプルを配分（Hamilton）",
   "personaSetup.allocationTitle.proportionalShares": "宣言したターゲット比率に応じてサンプルを配分（Hamilton）",
+  "personaSetup.cliSubscription": "Claude Code サブスクリプションを使用",
+  "personaSetup.cliSubscriptionHint": "API キーの代わりに、ローカルの Claude Code CLI ログイン（claude setup-token）を使って Docker で実行します。Anthropic モデルのみ対応。",
   "personaSetup.cohortLocked": "この実行のコホートはロック済み — ペルソナや抽出設定を変えるにはリセットしてください。",
   "personaSetup.cohortReady": "{pool} · コホート準備完了",
   "personaSetup.common.cancel": "キャンセル",

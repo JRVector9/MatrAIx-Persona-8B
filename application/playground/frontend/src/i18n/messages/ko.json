@@ -553,6 +553,8 @@
   "personaSetup.allocationTitle.perCell": "층화 조합마다 N명씩 가져옴",
   "personaSetup.allocationTitle.proportional": "셀 인구에 따라 샘플 배분 (Hamilton)",
   "personaSetup.allocationTitle.proportionalShares": "선언한 목표 비중에 따라 샘플 배분 (Hamilton)",
+  "personaSetup.cliSubscription": "Claude Code 구독 사용",
+  "personaSetup.cliSubscriptionHint": "API 키 대신 로컬 Claude Code CLI 로그인(claude setup-token)으로 Docker에서 실행합니다. Anthropic 모델만 지원합니다.",
   "personaSetup.cohortLocked": "이 실행의 코호트는 잠겨 있습니다 — 페르소나·샘플 설정을 바꾸려면 재설정하세요.",
   "personaSetup.cohortReady": "{pool} · 코호트 준비됨",
   "personaSetup.common.cancel": "취소",

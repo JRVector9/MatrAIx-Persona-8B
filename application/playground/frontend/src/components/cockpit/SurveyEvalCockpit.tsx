@@ -170,6 +170,7 @@ export function SurveyEvalCockpit({
   const { run, job, phase, isRunning, error, timedOut, retry, reset, harborPhase, harborJobName, harborTrialName, cancelRun, cancelBusy: harborCancelBusy } =
     useHarborCockpitRun<SurveyEvalJobView>({ taskKind: "survey" });
   const [selectedTaskId, setSelectedTaskId] = useState("");
+  const [useCliSubscription, setUseCliSubscription] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [tab, setTab] = useState<InspectorTab>("evaluation");
   const [exportSnapshot, setExportSnapshot] = useState<{
@@ -371,7 +372,8 @@ export function SurveyEvalCockpit({
         taskPath,
         personaId: persona.id,
         personaModel,
-        mode: "auto",
+        mode: useCliSubscription ? "force_docker" : "auto",
+        agentName: useCliSubscription ? "persona-claude-code" : undefined,
         mapDebrief: (debrief, ctx) =>
           mapSurveyDebriefToJobView(debrief, ctx, {
             personaId: persona.id,
@@ -388,7 +390,7 @@ export function SurveyEvalCockpit({
           }),
       });
     },
-    [persona, isRunning, run, personaModel, harborTasks],
+    [persona, isRunning, run, personaModel, harborTasks, useCliSubscription],
   );
 
   const handleRun = useCallback(() => {
@@ -404,11 +406,22 @@ export function SurveyEvalCockpit({
       await launchBatch({
         taskPath: selectedCard.taskPath || HARBOR_TASK_PATHS.survey,
         taskId: selectedCard.id,
+        overrides: useCliSubscription
+          ? { mode: "force_docker", agentName: "persona-claude-code" }
+          : undefined,
       });
       return;
     }
     handleRun();
-  }, [canLaunchCohort, selectedCard, isRunning, isBatchRun, launchBatch, handleRun]);
+  }, [
+    canLaunchCohort,
+    selectedCard,
+    isRunning,
+    isBatchRun,
+    launchBatch,
+    handleRun,
+    useCliSubscription,
+  ]);
 
   const handleNewRun = useCallback(() => {
     reset();
@@ -558,6 +571,8 @@ export function SurveyEvalCockpit({
           personaModel={personaModel}
           onPersonaModelChange={setPersonaModel}
           personaModelOptions={personaModelOptions}
+          useCliSubscription={useCliSubscription}
+          onUseCliSubscriptionChange={setUseCliSubscription}
           mode={samplingMode}
           onModeChange={setSamplingMode}
           selectedPersonaIds={visiblePersonaIds}

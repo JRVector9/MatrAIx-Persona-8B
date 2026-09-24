@@ -285,6 +285,7 @@ function ChatbotEvalCockpit({
   // --- Selection + run knobs ---------------------------------------------
   const [selectedTaskId, setSelectedTaskId] = useState<string>("");
   const [engine, setEngine] = useState<string>(options?.defaults.engine ?? "gpt-4o-mini");
+  const [useCliSubscription, setUseCliSubscription] = useState(false);
   const [maxTurns, setMaxTurns] = useState<number | null>(null);
   const [sidecarStartingId, setSidecarStartingId] = useState<string | null>(null);
   const [sidecarActionError, setSidecarActionError] = useState<string | null>(null);
@@ -535,7 +536,8 @@ function ChatbotEvalCockpit({
       taskPath: chatTaskPath,
       personaId: persona.id,
       personaModel,
-      mode: "auto",
+      mode: useCliSubscription ? "force_docker" : "auto",
+      agentName: useCliSubscription ? "persona-claude-code" : undefined,
       chatDomain: requestDomain,
       chatApplicationId: knownLaunchApplicationId ?? undefined,
       chatApplicationContext: launchChatApplicationContext,
@@ -568,6 +570,7 @@ function ChatbotEvalCockpit({
     maxTurns,
     phase,
     reset,
+    useCliSubscription,
   ]);
 
   const handleLaunch = useCallback(async () => {
@@ -579,6 +582,8 @@ function ChatbotEvalCockpit({
         taskPath: chatTaskPath,
         taskId: selectedTask.id,
         overrides: {
+          mode: useCliSubscription ? "force_docker" : "auto",
+          agentName: useCliSubscription ? "persona-claude-code" : undefined,
           chatDomain: requestDomain,
           chatApplicationId: knownLaunchApplicationId ?? undefined,
           chatApplicationContext: launchChatApplicationContext,
@@ -600,6 +605,7 @@ function ChatbotEvalCockpit({
     selectedTask,
     launchBatch,
     handleRun,
+    useCliSubscription,
   ]);
 
   const handleRetry = useCallback(() => {
@@ -851,6 +857,8 @@ function ChatbotEvalCockpit({
           personaModel={personaModel}
           onPersonaModelChange={setPersonaModel}
           personaModelOptions={personaModelOptions}
+          useCliSubscription={useCliSubscription}
+          onUseCliSubscriptionChange={setUseCliSubscription}
           mode={samplingMode}
           onModeChange={setSamplingMode}
           selectedPersonaIds={visiblePersonaIds}

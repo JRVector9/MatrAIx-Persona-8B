@@ -859,6 +859,9 @@ export interface PersonaSamplingRailProps {
   personaModel: string;
   onPersonaModelChange: (model: string) => void;
   personaModelOptions: CockpitSelectOption[];
+  /** Run via the Claude Code CLI subscription (Docker, `persona-claude-code`) instead of an API key. */
+  useCliSubscription?: boolean;
+  onUseCliSubscriptionChange?: (value: boolean) => void;
   mode: PersonaSamplingMode;
   onModeChange: (mode: PersonaSamplingMode) => void;
   selectedPersonaIds: string[];
@@ -898,6 +901,8 @@ export function PersonaSamplingRail({
   personaModel,
   onPersonaModelChange,
   personaModelOptions,
+  useCliSubscription = false,
+  onUseCliSubscriptionChange,
   mode,
   onModeChange,
   selectedPersonaIds,
@@ -1776,6 +1781,15 @@ export function PersonaSamplingRail({
                   wideMenu
                   showSelectedMeta={false}
                   onChange={onPersonaModelChange}
+                />
+              )}
+              {showModelSelector && onUseCliSubscriptionChange && (
+                <CockpitToggle
+                  label={t("personaSetup.cliSubscription")}
+                  description={t("personaSetup.cliSubscriptionHint")}
+                  checked={useCliSubscription}
+                  disabled={disabled}
+                  onChange={onUseCliSubscriptionChange}
                 />
               )}
             </div>
