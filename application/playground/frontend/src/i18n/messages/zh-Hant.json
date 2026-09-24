@@ -659,6 +659,8 @@
   "personaSetup.loadingCohortPersonas": "正在載入群組中的數位人…",
   "personaSetup.loadingDataset": "正在載入 {dataset}…",
   "personaSetup.model": "模型",
+  "personaSetup.modelPrice": "輸入 {input} · 輸出 {output} / 百萬 tokens",
+  "personaSetup.reasoningEffort": "推理強度",
   "personaSetup.noneLoaded": "沒有載入到數位人，請確認後端正在執行。",
   "personaSetup.offlineList": "正在使用離線數位人清單——重啟後端以載入完整維度。",
   "personaSetup.perCell": "每格",

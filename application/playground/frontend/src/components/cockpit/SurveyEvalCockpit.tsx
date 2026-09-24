@@ -273,6 +273,9 @@ export function SurveyEvalCockpit({
     setPersonaAuth,
     modelOptions: authModelOptions,
     launchFields: authLaunchFields,
+    reasoningEffort,
+    setReasoningEffort,
+    reasoningEfforts,
   } = usePersonaAuth(personaModel, setPersonaModel, personaModelOptions);
   const setupLocked = phase !== "idle" || Boolean(batchJobName);
   const visiblePersonaIds = setupLocked && batchPersonaIds.length > 0 ? batchPersonaIds : selectedPersonaIds;
@@ -577,6 +580,9 @@ export function SurveyEvalCockpit({
           personaModelOptions={authModelOptions}
           personaAuth={personaAuth}
           onPersonaAuthChange={setPersonaAuth}
+          reasoningEffort={reasoningEffort}
+          reasoningEffortOptions={reasoningEfforts}
+          onReasoningEffortChange={setReasoningEffort}
           mode={samplingMode}
           onModeChange={setSamplingMode}
           selectedPersonaIds={visiblePersonaIds}

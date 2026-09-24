@@ -1267,6 +1267,7 @@ class HarborJobService:
         execution_plane: str | None = None,
         compute_family: str | None = None,
         extra_launch_env: dict[str, str] | None = None,
+        reasoning_effort: str | None = None,
     ) -> str:
         from backend.service.execution_plane import (
             ExecutionPlaneError,
@@ -1469,6 +1470,8 @@ class HarborJobService:
                     agent_cfg,
                     model_name=str(agent_cfg.get("model_name") or model),
                 )
+                if reasoning_effort:
+                    agent_cfg.setdefault("kwargs", {})["reasoning_effort"] = reasoning_effort
         # os_app_submission_profile / cua_submission_profile are no longer injected:
         # agents mirror final_answer only; task verifiers recover named JSON.
         job_config["environment"] = compute_plan.harbor_environment()

@@ -21,6 +21,7 @@ export type CockpitLaunchOverrides = Pick<
   | "mode"
   | "agentName"
   | "cliSubscription"
+  | "reasoningEffort"
   | "chatDomain"
   | "chatApplicationId"
   | "chatApplicationContext"

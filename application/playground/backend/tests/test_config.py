@@ -66,6 +66,11 @@ def test_options_knob_values_match_allowed(config_manager):
     assert [o["value"] for o in knobs["personaModel"]["options"]] == PERSONA_MODEL_OPTIONS
     assert "anthropic/claude-opus-4-8" in PERSONA_MODEL_OPTIONS
     assert "anthropic/claude-sonnet-5" in PERSONA_MODEL_OPTIONS
+    assert "openai/gpt-6-sol" in PERSONA_MODEL_OPTIONS
+    prices = {o["value"]: o for o in knobs["personaModel"]["options"]}
+    assert prices["anthropic/claude-sonnet-5"]["inputCostPer1M"] == 2
+    assert prices["anthropic/claude-sonnet-5"]["outputCostPer1M"] == 10
+    assert prices["openai/gpt-5.5"]["inputCostPer1M"] == 5
     assert "dashscope/qwen3.7-max" in PERSONA_MODEL_OPTIONS
     assert "dashscope/deepseek-v4-pro" in PERSONA_MODEL_OPTIONS
     assert "openrouter/z-ai/glm-4.7" in PERSONA_MODEL_OPTIONS

@@ -239,7 +239,24 @@ const SUBSCRIPTION_AGENT_BY_AUTH: Record<Exclude<PersonaAuth, "api">, string> = 
 
 // Codex on a ChatGPT account only serves its own models: gpt-4o-mini and gpt-5.4
 // fail with "not supported when using Codex with a ChatGPT account" (codex-cli 0.156).
-const CODEX_SUBSCRIPTION_MODELS = new Set(["openai/gpt-5.5"]);
+// Efforts per model mirror the Codex CLI models cache for a ChatGPT account.
+const CODEX_REASONING_EFFORTS: Record<string, string[]> = {
+  "openai/gpt-5.5": ["low", "medium", "high", "xhigh"],
+  "openai/gpt-6-sol": ["low", "medium", "high", "xhigh", "max", "ultra"],
+};
+
+/** persona-codex default `model_reasoning_effort` (harbor CLI flag default). */
+export const DEFAULT_REASONING_EFFORT = "high";
+
+/** Reasoning efforts Codex offers for `model`; empty for non-Codex models. */
+export function codexReasoningEfforts(model: string): string[] {
+  return CODEX_REASONING_EFFORTS[model] ?? [];
+}
+
+/** Compact USD label for a per-1M-token price, e.g. 2 → "$2", 0.15 → "$0.15". */
+export function formatUsdPer1M(value: number): string {
+  return `$${Number(value.toFixed(2))}`;
+}
 
 const SUBSCRIPTION_DEFAULT_MODEL: Record<Exclude<PersonaAuth, "api">, string> = {
   "claude-code": "anthropic/claude-sonnet-5",
@@ -251,17 +268,25 @@ export function personaAuthDefaultModel(auth: PersonaAuth): string | null {
   return auth === "api" ? null : SUBSCRIPTION_DEFAULT_MODEL[auth];
 }
 
-/** Launch fields for `auth`; subscriptions run the matching CLI harness in Docker. */
-export function personaAuthLaunchFields(auth: PersonaAuth): {
+/**
+ * Launch fields for `auth`; subscriptions run the matching CLI harness in
+ * Docker, and Codex also takes the chosen reasoning effort.
+ */
+export function personaAuthLaunchFields(
+  auth: PersonaAuth,
+  reasoningEffort: string,
+): {
   mode?: "force_docker";
   agentName?: string;
   cliSubscription?: boolean;
+  reasoningEffort?: string;
 } {
   if (auth === "api") return {};
   return {
     mode: "force_docker",
     agentName: SUBSCRIPTION_AGENT_BY_AUTH[auth],
     cliSubscription: true,
+    ...(auth === "codex" ? { reasoningEffort } : {}),
   };
 }
 
@@ -272,7 +297,7 @@ export function personaAuthModelOptions(
 ): CockpitSelectOption[] {
   if (auth === "api") return options;
   const models = webPersonaModelSelectOptions(SUBSCRIPTION_AGENT_BY_AUTH[auth], options);
-  return auth === "codex" ? models.filter((opt) => CODEX_SUBSCRIPTION_MODELS.has(opt.value)) : models;
+  return auth === "codex" ? models.filter((opt) => opt.value in CODEX_REASONING_EFFORTS) : models;
 }
 
 const CAPABILITY_TIER_LABELS: Record<AgentCapabilityTier, string> = {

@@ -200,6 +200,7 @@ export const api = {
     personaIds?: string[];
     agentName?: string | null;
     cliSubscription?: boolean;
+    reasoningEffort?: string;
     personaModel?: string | null;
     nConcurrentTrials?: number;
     mode?: "auto" | "force_docker" | "smoke";

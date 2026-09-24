@@ -659,6 +659,8 @@
   "personaSetup.loadingCohortPersonas": "코호트 페르소나 불러오는 중…",
   "personaSetup.loadingDataset": "{dataset} 불러오는 중…",
   "personaSetup.model": "모델",
+  "personaSetup.modelPrice": "입력 {input} · 출력 {output} / 100만 토큰",
+  "personaSetup.reasoningEffort": "추론 강도",
   "personaSetup.noneLoaded": "불러온 페르소나가 없습니다. 백엔드가 실행 중인지 확인하세요.",
   "personaSetup.offlineList": "오프라인 페르소나 목록 사용 중 — 전체 차원을 쓰려면 백엔드를 재시작하세요.",
   "personaSetup.perCell": "셀당",

@@ -863,6 +863,10 @@ export interface PersonaSamplingRailProps {
   /** Persona billing: provider API key or a host CLI subscription (Claude Code / Codex). */
   personaAuth?: PersonaAuth;
   onPersonaAuthChange?: (auth: PersonaAuth) => void;
+  /** Codex reasoning effort; the picker shows only when `reasoningEffortOptions` is non-empty. */
+  reasoningEffort?: string;
+  reasoningEffortOptions?: string[];
+  onReasoningEffortChange?: (effort: string) => void;
   mode: PersonaSamplingMode;
   onModeChange: (mode: PersonaSamplingMode) => void;
   selectedPersonaIds: string[];
@@ -904,6 +908,9 @@ export function PersonaSamplingRail({
   personaModelOptions,
   personaAuth = "api",
   onPersonaAuthChange,
+  reasoningEffort = "",
+  reasoningEffortOptions = [],
+  onReasoningEffortChange,
   mode,
   onModeChange,
   selectedPersonaIds,
@@ -1780,7 +1787,6 @@ export function PersonaSamplingRail({
                   options={personaModelOptions}
                   disabled={disabled}
                   wideMenu
-                  showSelectedMeta={false}
                   onChange={onPersonaModelChange}
                 />
               )}
@@ -1806,6 +1812,17 @@ export function PersonaSamplingRail({
                   disabled={disabled}
                   wideMenu
                   onChange={(value) => onPersonaAuthChange(value as PersonaAuth)}
+                />
+              )}
+              {showModelSelector && onReasoningEffortChange && reasoningEffortOptions.length > 0 && (
+                <CockpitSelect
+                  label={t("personaSetup.reasoningEffort")}
+                  inlineLabel
+                  labelClassName="w-[4.25rem]"
+                  value={reasoningEffort}
+                  options={reasoningEffortOptions.map((effort) => ({ value: effort, label: effort }))}
+                  disabled={disabled}
+                  onChange={onReasoningEffortChange}
                 />
               )}
             </div>

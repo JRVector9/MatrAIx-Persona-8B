@@ -262,6 +262,57 @@ def test_launch_harbor_job_codex_subscription_requires_auth_json(
     assert fake_harbor_jobs.launches == []
 
 
+def test_launch_harbor_job_passes_codex_reasoning_effort(
+    client, fake_harbor_jobs, monkeypatch, tmp_path
+):
+    monkeypatch.setenv("CODEX_AUTH_JSON_PATH", str(tmp_path / "auth.json"))
+    (tmp_path / "auth.json").write_text("{}", encoding="utf-8")
+    resp = client.post(
+        "/api/harbor/jobs",
+        json={
+            "taskPath": "application/tasks/example-survey_product-feedback",
+            "personaIds": ["0042"],
+            "personaModel": "openai/gpt-6-sol",
+            "mode": "force_docker",
+            "agentName": "persona-codex",
+            "cliSubscription": True,
+            "reasoningEffort": "ultra",
+        },
+    )
+    assert resp.status_code == 200
+    assert fake_harbor_jobs.launches[-1]["reasoning_effort"] == "ultra"
+
+
+def test_launch_harbor_job_rejects_reasoning_effort_for_non_codex(client, fake_harbor_jobs):
+    resp = client.post(
+        "/api/harbor/jobs",
+        json={
+            "taskPath": "application/tasks/example-survey_product-feedback",
+            "personaModel": "anthropic/claude-sonnet-5",
+            "mode": "force_docker",
+            "agentName": "persona-claude-code",
+            "reasoningEffort": "high",
+        },
+    )
+    assert resp.status_code == 422
+    assert "persona-codex" in resp.json()["detail"]
+    assert fake_harbor_jobs.launches == []
+
+
+def test_launch_harbor_job_rejects_unknown_reasoning_effort(client, fake_harbor_jobs):
+    resp = client.post(
+        "/api/harbor/jobs",
+        json={
+            "taskPath": "application/tasks/example-survey_product-feedback",
+            "personaModel": "openai/gpt-5.5",
+            "agentName": "persona-codex",
+            "reasoningEffort": "turbo",
+        },
+    )
+    assert resp.status_code == 422
+    assert fake_harbor_jobs.launches == []
+
+
 def test_launch_harbor_job_subscription_rejects_other_agents(client, fake_harbor_jobs):
     resp = _subscription_launch(client, "persona-gemini-cli", "anthropic/claude-haiku-4-5")
     assert resp.status_code == 422

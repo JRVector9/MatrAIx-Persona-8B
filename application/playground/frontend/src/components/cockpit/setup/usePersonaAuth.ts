@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
+  codexReasoningEfforts,
+  DEFAULT_REASONING_EFFORT,
   personaAuthDefaultModel,
   personaAuthLaunchFields,
   personaAuthModelOptions,
@@ -12,7 +14,8 @@ import type { CockpitSelectOption } from "./CockpitSelect";
 /**
  * Persona auth picker state for the Survey/Chatbot cockpits. A CLI
  * subscription pins one provider, so the model list (and the selected model)
- * follows the chosen auth; `launchFields` spread into single and batch launches.
+ * follows the chosen auth; Codex models also carry a reasoning effort.
+ * `launchFields` spread into single and batch launches.
  */
 export function usePersonaAuth(
   personaModel: string,
@@ -20,11 +23,19 @@ export function usePersonaAuth(
   personaModelOptions: CockpitSelectOption[],
 ) {
   const [personaAuth, setPersonaAuthState] = useState<PersonaAuth>("api");
+  const [reasoningEffort, setReasoningEffort] = useState(DEFAULT_REASONING_EFFORT);
   const modelOptions = useMemo(
     () => personaAuthModelOptions(personaAuth, personaModelOptions),
     [personaAuth, personaModelOptions],
   );
-  const launchFields = useMemo(() => personaAuthLaunchFields(personaAuth), [personaAuth]);
+  const reasoningEfforts = useMemo(
+    () => (personaAuth === "codex" ? codexReasoningEfforts(personaModel) : []),
+    [personaAuth, personaModel],
+  );
+  const launchFields = useMemo(
+    () => personaAuthLaunchFields(personaAuth, reasoningEffort),
+    [personaAuth, reasoningEffort],
+  );
 
   const setPersonaAuth = useCallback(
     (auth: PersonaAuth) => {
@@ -44,5 +55,22 @@ export function usePersonaAuth(
     }
   }, [personaAuth, modelOptions, personaModel, setPersonaModel]);
 
-  return { personaAuth, setPersonaAuth, modelOptions, launchFields };
+  useEffect(() => {
+    if (reasoningEfforts.length === 0 || reasoningEfforts.includes(reasoningEffort)) return;
+    setReasoningEffort(
+      reasoningEfforts.includes(DEFAULT_REASONING_EFFORT)
+        ? DEFAULT_REASONING_EFFORT
+        : reasoningEfforts[0],
+    );
+  }, [reasoningEfforts, reasoningEffort]);
+
+  return {
+    personaAuth,
+    setPersonaAuth,
+    modelOptions,
+    launchFields,
+    reasoningEffort,
+    setReasoningEffort,
+    reasoningEfforts,
+  };
 }

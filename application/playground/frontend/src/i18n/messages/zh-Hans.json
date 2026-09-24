@@ -659,6 +659,8 @@
   "personaSetup.loadingCohortPersonas": "正在加载群组中的数字人…",
   "personaSetup.loadingDataset": "正在加载 {dataset}…",
   "personaSetup.model": "模型",
+  "personaSetup.modelPrice": "输入 {input} · 输出 {output} / 百万 tokens",
+  "personaSetup.reasoningEffort": "推理强度",
   "personaSetup.noneLoaded": "尚未加载数字人。请确认后端正在运行。",
   "personaSetup.offlineList": "正在使用离线数字人列表 — 重启后端以加载完整维度。",
   "personaSetup.perCell": "每格",

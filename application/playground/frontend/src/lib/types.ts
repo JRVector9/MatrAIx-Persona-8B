@@ -12,6 +12,9 @@ export interface ConfigOptionValue {
   value: string;
   label: string;
   description?: string;
+  /** Persona models only: LiteLLM list price in USD per 1M tokens. */
+  inputCostPer1M?: number;
+  outputCostPer1M?: number;
 }
 
 export interface ConfigKnob {

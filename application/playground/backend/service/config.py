@@ -17,6 +17,7 @@ The module imports only the stdlib so it is safe to import anywhere.
 
 from __future__ import annotations
 
+import functools
 import os
 from typing import Dict, List, Optional
 
@@ -62,6 +63,10 @@ PERSONA_MODEL_KNOB_META: Dict[str, Dict[str, str]] = {
     "openai/gpt-5.5": {
         "label": "GPT-5.5",
         "description": "OpenAI computer-use CUA (default OpenAI desktop CUA model).",
+    },
+    "openai/gpt-6-sol": {
+        "label": "GPT-6 Sol",
+        "description": "Latest OpenAI persona simulation.",
     },
     "gemini/gemini-2.5-flash": {
         "label": "Gemini 2.5 Flash",
@@ -170,6 +175,22 @@ PERSONA_MODEL_KNOB_META: Dict[str, Dict[str, str]] = {
 }
 
 PERSONA_MODEL_OPTIONS = list(PERSONA_MODEL_KNOB_META.keys())
+
+
+@functools.lru_cache(maxsize=None)
+def persona_model_price_per_1m(model: str) -> tuple[float, float] | None:
+    """LiteLLM list price in USD per 1M (input, output) tokens; None when unknown."""
+    try:
+        from litellm.utils import get_model_info
+
+        info = get_model_info(model)
+    except Exception:
+        return None
+    input_cost = info.get("input_cost_per_token")
+    output_cost = info.get("output_cost_per_token")
+    if input_cost is None or output_cost is None:
+        return None
+    return round(input_cost * 1_000_000, 4), round(output_cost * 1_000_000, 4)
 DEFAULT_HARBOR_PERSONA_MODEL = DEFAULT_PERSONA_MODEL
 HARBOR_PERSONA_MODEL_OPTIONS = PERSONA_MODEL_OPTIONS
 RUNTIME_OPTIONS = ("local", "harbor")
@@ -444,7 +465,7 @@ class ConfigManager:
             meta = self.KNOB_META.get(key, {})
             value_meta = meta.get("values", {})
             value_meta = value_meta if isinstance(value_meta, dict) else {}
-            option_views: List[Dict[str, str]] = []
+            option_views: List[Dict[str, object]] = []
             allowed_values = (
                 PERSONA_MODEL_OPTIONS
                 if key == "personaModel"
@@ -453,13 +474,15 @@ class ConfigManager:
             for value in allowed_values:
                 vm = value_meta.get(value, {})
                 vm = vm if isinstance(vm, dict) else {}
-                option_views.append(
-                    {
-                        "value": value,
-                        "label": str(vm.get("label", value)),
-                        "description": str(vm.get("description", "")),
-                    }
-                )
+                view: Dict[str, object] = {
+                    "value": value,
+                    "label": str(vm.get("label", value)),
+                    "description": str(vm.get("description", "")),
+                }
+                price = persona_model_price_per_1m(value) if key == "personaModel" else None
+                if price is not None:
+                    view["inputCostPer1M"], view["outputCostPer1M"] = price
+                option_views.append(view)
             knobs.append(
                 {
                     "key": key,

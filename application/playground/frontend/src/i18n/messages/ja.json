@@ -659,6 +659,8 @@
   "personaSetup.loadingCohortPersonas": "コホートのペルソナを読み込み中…",
   "personaSetup.loadingDataset": "{dataset} を読み込み中…",
   "personaSetup.model": "モデル",
+  "personaSetup.modelPrice": "入力 {input} · 出力 {output} / 100万トークン",
+  "personaSetup.reasoningEffort": "推論強度",
   "personaSetup.noneLoaded": "ペルソナが読み込まれていません。バックエンドが起動しているか確認してください。",
   "personaSetup.offlineList": "オフラインのペルソナ一覧を使用中 — 全次元を使うにはバックエンドを再起動してください。",
   "personaSetup.perCell": "セルごと",

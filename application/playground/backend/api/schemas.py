@@ -95,6 +95,8 @@ DEFAULT_APPLICATION_CONTEXTS = {
 }
 
 SUPPORTED_PERSONA_MODELS = tuple(PERSONA_MODEL_OPTIONS)
+# Union of the efforts Codex offers across models; the UI narrows per model.
+REASONING_EFFORTS = ("low", "medium", "high", "xhigh", "max", "ultra")
 
 
 def _resolved_chat_context(
@@ -722,6 +724,8 @@ class HarborJobLaunchRequest(BaseModel):
     # Bill the host's CLI subscription (persona-claude-code / persona-codex)
     # instead of the provider API key.
     cliSubscription: bool = False
+    # persona-codex model_reasoning_effort; the agent defaults to "high".
+    reasoningEffort: Optional[str] = None
     personaModel: Optional[str] = None
     nConcurrentTrials: int = 2
     mode: str = "auto"
@@ -768,6 +772,15 @@ class HarborJobLaunchRequest(BaseModel):
         if normalized not in {"local", "modal", "gcp"}:
             raise ValueError("computeFamily must be one of local, modal, gcp")
         return normalized
+
+    @field_validator("reasoningEffort")
+    @classmethod
+    def _validate_reasoning_effort(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return value
+        if value not in REASONING_EFFORTS:
+            raise ValueError("reasoningEffort must be one of {}".format(list(REASONING_EFFORTS)))
+        return value
 
     @field_validator("personaModel")
     @classmethod

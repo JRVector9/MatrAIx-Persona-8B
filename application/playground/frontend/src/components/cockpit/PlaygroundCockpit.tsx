@@ -383,6 +383,9 @@ function ChatbotEvalCockpit({
     setPersonaAuth,
     modelOptions: authModelOptions,
     launchFields: authLaunchFields,
+    reasoningEffort,
+    setReasoningEffort,
+    reasoningEfforts,
   } = usePersonaAuth(personaModel, setPersonaModel, personaModelOptions);
   const pipelinePersonaModelLabel = useMemo(
     () => personaModelPipelineLabel(personaModel, personaModelOptions),
@@ -864,6 +867,9 @@ function ChatbotEvalCockpit({
           personaModelOptions={authModelOptions}
           personaAuth={personaAuth}
           onPersonaAuthChange={setPersonaAuth}
+          reasoningEffort={reasoningEffort}
+          reasoningEffortOptions={reasoningEfforts}
+          onReasoningEffortChange={setReasoningEffort}
           mode={samplingMode}
           onModeChange={setSamplingMode}
           selectedPersonaIds={visiblePersonaIds}

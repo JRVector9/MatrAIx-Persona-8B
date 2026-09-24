@@ -659,6 +659,8 @@
   "personaSetup.loadingCohortPersonas": "Cargando personas de la cohorte…",
   "personaSetup.loadingDataset": "Cargando {dataset}…",
   "personaSetup.model": "Modelo",
+  "personaSetup.modelPrice": "Entrada {input} · salida {output} por 1 M de tokens",
+  "personaSetup.reasoningEffort": "Razonamiento",
   "personaSetup.noneLoaded": "No hay personas cargadas. Comprueba que el backend esté en marcha.",
   "personaSetup.offlineList": "Usando lista de personas sin conexión — reinicia el backend para dimensiones completas.",
   "personaSetup.perCell": "Por celda",
