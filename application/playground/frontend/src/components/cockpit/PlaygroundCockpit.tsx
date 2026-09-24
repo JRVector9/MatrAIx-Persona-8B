@@ -47,6 +47,7 @@ import {
   resolveRunLaunchPhase,
 } from "./setup/useCockpitBatchJob";
 import { useCockpitLaunch } from "./setup/useCockpitLaunch";
+import { usePersonaAuth } from "./setup/usePersonaAuth";
 import { useCockpitRunCancel } from "./setup/useCockpitRunCancel";
 import { useCockpitSetupLock } from "./setup/useCockpitSetupLock";
 import { api } from "@/lib/api";
@@ -285,7 +286,6 @@ function ChatbotEvalCockpit({
   // --- Selection + run knobs ---------------------------------------------
   const [selectedTaskId, setSelectedTaskId] = useState<string>("");
   const [engine, setEngine] = useState<string>(options?.defaults.engine ?? "gpt-4o-mini");
-  const [useCliSubscription, setUseCliSubscription] = useState(false);
   const [maxTurns, setMaxTurns] = useState<number | null>(null);
   const [sidecarStartingId, setSidecarStartingId] = useState<string | null>(null);
   const [sidecarActionError, setSidecarActionError] = useState<string | null>(null);
@@ -378,6 +378,12 @@ function ChatbotEvalCockpit({
     configAnotherOpen,
     batchLaunching,
   } = useCockpitLaunch(options, "chatbot", setupTaskPath, isActive);
+  const {
+    personaAuth,
+    setPersonaAuth,
+    modelOptions: authModelOptions,
+    launchFields: authLaunchFields,
+  } = usePersonaAuth(personaModel, setPersonaModel, personaModelOptions);
   const pipelinePersonaModelLabel = useMemo(
     () => personaModelPipelineLabel(personaModel, personaModelOptions),
     [personaModel, personaModelOptions],
@@ -536,8 +542,8 @@ function ChatbotEvalCockpit({
       taskPath: chatTaskPath,
       personaId: persona.id,
       personaModel,
-      mode: useCliSubscription ? "force_docker" : "auto",
-      agentName: useCliSubscription ? "persona-claude-code" : undefined,
+      mode: "auto",
+      ...authLaunchFields,
       chatDomain: requestDomain,
       chatApplicationId: knownLaunchApplicationId ?? undefined,
       chatApplicationContext: launchChatApplicationContext,
@@ -570,7 +576,7 @@ function ChatbotEvalCockpit({
     maxTurns,
     phase,
     reset,
-    useCliSubscription,
+    authLaunchFields,
   ]);
 
   const handleLaunch = useCallback(async () => {
@@ -582,8 +588,7 @@ function ChatbotEvalCockpit({
         taskPath: chatTaskPath,
         taskId: selectedTask.id,
         overrides: {
-          mode: useCliSubscription ? "force_docker" : "auto",
-          agentName: useCliSubscription ? "persona-claude-code" : undefined,
+          ...authLaunchFields,
           chatDomain: requestDomain,
           chatApplicationId: knownLaunchApplicationId ?? undefined,
           chatApplicationContext: launchChatApplicationContext,
@@ -605,7 +610,7 @@ function ChatbotEvalCockpit({
     selectedTask,
     launchBatch,
     handleRun,
-    useCliSubscription,
+    authLaunchFields,
   ]);
 
   const handleRetry = useCallback(() => {
@@ -856,9 +861,9 @@ function ChatbotEvalCockpit({
           taskPath={chatTaskPath || null}
           personaModel={personaModel}
           onPersonaModelChange={setPersonaModel}
-          personaModelOptions={personaModelOptions}
-          useCliSubscription={useCliSubscription}
-          onUseCliSubscriptionChange={setUseCliSubscription}
+          personaModelOptions={authModelOptions}
+          personaAuth={personaAuth}
+          onPersonaAuthChange={setPersonaAuth}
           mode={samplingMode}
           onModeChange={setSamplingMode}
           selectedPersonaIds={visiblePersonaIds}

@@ -201,6 +201,72 @@ def test_launch_harbor_job_with_persona_ids(client, fake_harbor_jobs):
     assert resp.status_code == 200
     assert fake_harbor_jobs.launches[-1]["persona_ids"] == ["0042"]
     assert fake_harbor_jobs.launches[-1]["execution_mode"] == "auto"
+    assert fake_harbor_jobs.launches[-1]["extra_launch_env"] is None
+
+
+def _subscription_launch(client, agent_name: str, persona_model: str):
+    return client.post(
+        "/api/harbor/jobs",
+        json={
+            "taskPath": "application/tasks/example-survey_product-feedback",
+            "personaIds": ["0042"],
+            "personaModel": persona_model,
+            "mode": "force_docker",
+            "agentName": agent_name,
+            "cliSubscription": True,
+        },
+    )
+
+
+def test_launch_harbor_job_claude_code_subscription_forces_oauth(
+    client, fake_harbor_jobs, monkeypatch
+):
+    monkeypatch.setenv("CLAUDE_CODE_OAUTH_TOKEN", "sk-ant-oat-test")
+    resp = _subscription_launch(client, "persona-claude-code", "anthropic/claude-haiku-4-5")
+    assert resp.status_code == 200
+    assert fake_harbor_jobs.launches[-1]["agent_name"] == "persona-claude-code"
+    assert fake_harbor_jobs.launches[-1]["extra_launch_env"] == {"CLAUDE_FORCE_OAUTH": "1"}
+
+
+def test_launch_harbor_job_claude_code_subscription_requires_token(
+    client, fake_harbor_jobs, monkeypatch
+):
+    monkeypatch.delenv("CLAUDE_CODE_OAUTH_TOKEN", raising=False)
+    resp = _subscription_launch(client, "persona-claude-code", "anthropic/claude-haiku-4-5")
+    assert resp.status_code == 422
+    assert "claude setup-token" in resp.json()["detail"]
+    assert fake_harbor_jobs.launches == []
+
+
+def test_launch_harbor_job_codex_subscription_forces_auth_json(
+    client, fake_harbor_jobs, monkeypatch, tmp_path
+):
+    monkeypatch.delenv("CODEX_AUTH_JSON_PATH", raising=False)
+    monkeypatch.setenv("HOME", str(tmp_path))
+    (tmp_path / ".codex").mkdir()
+    (tmp_path / ".codex" / "auth.json").write_text("{}", encoding="utf-8")
+    resp = _subscription_launch(client, "persona-codex", "openai/gpt-5.5")
+    assert resp.status_code == 200
+    assert fake_harbor_jobs.launches[-1]["agent_name"] == "persona-codex"
+    assert fake_harbor_jobs.launches[-1]["extra_launch_env"] == {"CODEX_FORCE_AUTH_JSON": "1"}
+
+
+def test_launch_harbor_job_codex_subscription_requires_auth_json(
+    client, fake_harbor_jobs, monkeypatch, tmp_path
+):
+    monkeypatch.delenv("CODEX_AUTH_JSON_PATH", raising=False)
+    monkeypatch.setenv("HOME", str(tmp_path))
+    resp = _subscription_launch(client, "persona-codex", "openai/gpt-5.5")
+    assert resp.status_code == 422
+    assert "codex login" in resp.json()["detail"]
+    assert fake_harbor_jobs.launches == []
+
+
+def test_launch_harbor_job_subscription_rejects_other_agents(client, fake_harbor_jobs):
+    resp = _subscription_launch(client, "persona-gemini-cli", "anthropic/claude-haiku-4-5")
+    assert resp.status_code == 422
+    assert "persona-gemini-cli" in resp.json()["detail"]
+    assert fake_harbor_jobs.launches == []
 
 
 def test_launch_harbor_job_prefers_chat_application_context(client, fake_harbor_jobs):

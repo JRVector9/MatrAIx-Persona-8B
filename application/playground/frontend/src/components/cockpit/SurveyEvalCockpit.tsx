@@ -63,6 +63,7 @@ import { CockpitPipelineDiagram } from "./setup/CockpitPipelineDiagram";
 import { TaskSelectionRail } from "./setup/TaskSelectionRail";
 import { CockpitRunCenter } from "./setup/CockpitRunCenter";
 import { useCockpitLaunch } from "./setup/useCockpitLaunch";
+import { usePersonaAuth } from "./setup/usePersonaAuth";
 import {
   batchProgressPct as computeBatchProgressPct,
   formatBatchProgressLabel,
@@ -170,7 +171,6 @@ export function SurveyEvalCockpit({
   const { run, job, phase, isRunning, error, timedOut, retry, reset, harborPhase, harborJobName, harborTrialName, cancelRun, cancelBusy: harborCancelBusy } =
     useHarborCockpitRun<SurveyEvalJobView>({ taskKind: "survey" });
   const [selectedTaskId, setSelectedTaskId] = useState("");
-  const [useCliSubscription, setUseCliSubscription] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [tab, setTab] = useState<InspectorTab>("evaluation");
   const [exportSnapshot, setExportSnapshot] = useState<{
@@ -268,6 +268,12 @@ export function SurveyEvalCockpit({
     configAnotherOpen,
     batchLaunching,
   } = useCockpitLaunch(options, "survey", setupTaskPath, isActive);
+  const {
+    personaAuth,
+    setPersonaAuth,
+    modelOptions: authModelOptions,
+    launchFields: authLaunchFields,
+  } = usePersonaAuth(personaModel, setPersonaModel, personaModelOptions);
   const setupLocked = phase !== "idle" || Boolean(batchJobName);
   const visiblePersonaIds = setupLocked && batchPersonaIds.length > 0 ? batchPersonaIds : selectedPersonaIds;
   // Locked batches must read cards from the launch-time pool (cohort path);
@@ -372,8 +378,8 @@ export function SurveyEvalCockpit({
         taskPath,
         personaId: persona.id,
         personaModel,
-        mode: useCliSubscription ? "force_docker" : "auto",
-        agentName: useCliSubscription ? "persona-claude-code" : undefined,
+        mode: "auto",
+        ...authLaunchFields,
         mapDebrief: (debrief, ctx) =>
           mapSurveyDebriefToJobView(debrief, ctx, {
             personaId: persona.id,
@@ -390,7 +396,7 @@ export function SurveyEvalCockpit({
           }),
       });
     },
-    [persona, isRunning, run, personaModel, harborTasks, useCliSubscription],
+    [persona, isRunning, run, personaModel, harborTasks, authLaunchFields],
   );
 
   const handleRun = useCallback(() => {
@@ -406,9 +412,7 @@ export function SurveyEvalCockpit({
       await launchBatch({
         taskPath: selectedCard.taskPath || HARBOR_TASK_PATHS.survey,
         taskId: selectedCard.id,
-        overrides: useCliSubscription
-          ? { mode: "force_docker", agentName: "persona-claude-code" }
-          : undefined,
+        overrides: authLaunchFields,
       });
       return;
     }
@@ -420,7 +424,7 @@ export function SurveyEvalCockpit({
     isBatchRun,
     launchBatch,
     handleRun,
-    useCliSubscription,
+    authLaunchFields,
   ]);
 
   const handleNewRun = useCallback(() => {
@@ -570,9 +574,9 @@ export function SurveyEvalCockpit({
           taskPath={activeTaskPath || null}
           personaModel={personaModel}
           onPersonaModelChange={setPersonaModel}
-          personaModelOptions={personaModelOptions}
-          useCliSubscription={useCliSubscription}
-          onUseCliSubscriptionChange={setUseCliSubscription}
+          personaModelOptions={authModelOptions}
+          personaAuth={personaAuth}
+          onPersonaAuthChange={setPersonaAuth}
           mode={samplingMode}
           onModeChange={setSamplingMode}
           selectedPersonaIds={visiblePersonaIds}

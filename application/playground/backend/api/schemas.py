@@ -719,6 +719,9 @@ class HarborJobLaunchRequest(BaseModel):
     cohortId: Optional[str] = None
     useEntirePool: bool = False
     agentName: Optional[str] = None
+    # Bill the host's CLI subscription (persona-claude-code / persona-codex)
+    # instead of the provider API key.
+    cliSubscription: bool = False
     personaModel: Optional[str] = None
     nConcurrentTrials: int = 2
     mode: str = "auto"

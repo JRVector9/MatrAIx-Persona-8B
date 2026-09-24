@@ -27,6 +27,7 @@ export interface HarborCockpitRunInput<TJob> {
   chatMaxTurns?: number | null;
   osAppSubmissionProfile?: string;
   agentName?: string;
+  cliSubscription?: boolean;
   osAppBackend?: string;
   mapDebrief: (debrief: PlaygroundResult, ctx: { jobName: string; trialName: string }) => TJob;
   mapLive?: (live: HarborCockpitLiveState, ctx: { jobName: string; trialName: string }) => TJob;
@@ -171,6 +172,7 @@ export function useHarborCockpitRun<TJob>(options: UseHarborCockpitRunOptions) {
           personaIds: [input.personaId],
           personaModel: input.personaModel,
           agentName: input.agentName,
+          cliSubscription: input.cliSubscription,
           nConcurrentTrials: 1,
           mode: input.mode ?? "auto",
           chatDomain: input.chatDomain,

@@ -31,6 +31,7 @@ import {
 } from "@/lib/personaPoolCopy";
 import { syntheticDisplayName } from "@/lib/personaDisplay";
 import { useDimensionLabels } from "@/lib/dimensionLabels";
+import type { PersonaAuth } from "@/lib/personaAgentCatalog";
 import { FOCUS_RING, Sym, humanizeToken } from "../cockpitShared";
 import { CockpitSelect, type CockpitSelectOption } from "./CockpitSelect";
 import { CockpitToggle } from "./CockpitToggle";
@@ -859,9 +860,9 @@ export interface PersonaSamplingRailProps {
   personaModel: string;
   onPersonaModelChange: (model: string) => void;
   personaModelOptions: CockpitSelectOption[];
-  /** Run via the Claude Code CLI subscription (Docker, `persona-claude-code`) instead of an API key. */
-  useCliSubscription?: boolean;
-  onUseCliSubscriptionChange?: (value: boolean) => void;
+  /** Persona billing: provider API key or a host CLI subscription (Claude Code / Codex). */
+  personaAuth?: PersonaAuth;
+  onPersonaAuthChange?: (auth: PersonaAuth) => void;
   mode: PersonaSamplingMode;
   onModeChange: (mode: PersonaSamplingMode) => void;
   selectedPersonaIds: string[];
@@ -901,8 +902,8 @@ export function PersonaSamplingRail({
   personaModel,
   onPersonaModelChange,
   personaModelOptions,
-  useCliSubscription = false,
-  onUseCliSubscriptionChange,
+  personaAuth = "api",
+  onPersonaAuthChange,
   mode,
   onModeChange,
   selectedPersonaIds,
@@ -1783,13 +1784,28 @@ export function PersonaSamplingRail({
                   onChange={onPersonaModelChange}
                 />
               )}
-              {showModelSelector && onUseCliSubscriptionChange && (
-                <CockpitToggle
-                  label={t("personaSetup.cliSubscription")}
-                  description={t("personaSetup.cliSubscriptionHint")}
-                  checked={useCliSubscription}
+              {showModelSelector && onPersonaAuthChange && (
+                <CockpitSelect
+                  label={t("personaSetup.auth")}
+                  inlineLabel
+                  labelClassName="w-[4.25rem]"
+                  value={personaAuth}
+                  options={[
+                    { value: "api", label: t("personaSetup.auth.api") },
+                    {
+                      value: "claude-code",
+                      label: t("personaSetup.auth.claudeCode"),
+                      summary: t("personaSetup.auth.claudeCodeHint"),
+                    },
+                    {
+                      value: "codex",
+                      label: t("personaSetup.auth.codex"),
+                      summary: t("personaSetup.auth.codexHint"),
+                    },
+                  ]}
                   disabled={disabled}
-                  onChange={onUseCliSubscriptionChange}
+                  wideMenu
+                  onChange={(value) => onPersonaAuthChange(value as PersonaAuth)}
                 />
               )}
             </div>

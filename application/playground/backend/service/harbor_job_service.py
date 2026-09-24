@@ -170,6 +170,38 @@ def resolve_agent_name(
     return DEFAULT_AGENT_BY_TYPE.get(task_type or "survey", "persona-claude-code")
 
 
+def resolve_cli_subscription_env(agent_name: str) -> dict[str, str]:
+    """Launch env that makes a CLI harness bill the host's CLI subscription.
+
+    Raises ``ValueError`` when the agent has no subscription mode or the host
+    credential is missing, so the launch fails before any trial starts.
+    """
+    if agent_name == "persona-claude-code":
+        # Docker trials cannot reach a `claude /login` keychain session.
+        if not os.environ.get("CLAUDE_CODE_OAUTH_TOKEN", "").strip():
+            raise ValueError(
+                "Claude Code subscription needs CLAUDE_CODE_OAUTH_TOKEN: run "
+                "`claude setup-token`, add it to application/playground/.env.local, "
+                "and restart the backend"
+            )
+        return {"CLAUDE_FORCE_OAUTH": "1"}
+    if agent_name == "persona-codex":
+        explicit = os.environ.get("CODEX_AUTH_JSON_PATH", "").strip()
+        auth_json = Path(explicit) if explicit else Path.home() / ".codex" / "auth.json"
+        if not auth_json.is_file():
+            raise ValueError(
+                "Codex subscription needs {}: run `codex login` on this machine".format(
+                    auth_json
+                )
+            )
+        return {"CODEX_FORCE_AUTH_JSON": "1"}
+    raise ValueError(
+        "cliSubscription supports persona-claude-code and persona-codex, not {}".format(
+            agent_name
+        )
+    )
+
+
 def _map_task_metadata_type(task_type: str | None) -> str:
     if not task_type:
         return "unknown"

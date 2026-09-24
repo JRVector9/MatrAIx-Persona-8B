@@ -199,6 +199,7 @@ export const api = {
     personaPool?: string;
     personaIds?: string[];
     agentName?: string | null;
+    cliSubscription?: boolean;
     personaModel?: string | null;
     nConcurrentTrials?: number;
     mode?: "auto" | "force_docker" | "smoke";

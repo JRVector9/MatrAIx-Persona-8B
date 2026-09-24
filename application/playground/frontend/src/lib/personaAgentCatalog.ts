@@ -229,6 +229,52 @@ export function webPersonaModelSelectOptions(
   return options;
 }
 
+/** How Survey/Chatbot personas are billed: provider API key or a host CLI subscription. */
+export type PersonaAuth = "api" | "claude-code" | "codex";
+
+const SUBSCRIPTION_AGENT_BY_AUTH: Record<Exclude<PersonaAuth, "api">, string> = {
+  "claude-code": "persona-claude-code",
+  codex: "persona-codex",
+};
+
+// Codex on a ChatGPT account only serves its own models: gpt-4o-mini and gpt-5.4
+// fail with "not supported when using Codex with a ChatGPT account" (codex-cli 0.156).
+const CODEX_SUBSCRIPTION_MODELS = new Set(["openai/gpt-5.5"]);
+
+const SUBSCRIPTION_DEFAULT_MODEL: Record<Exclude<PersonaAuth, "api">, string> = {
+  "claude-code": "anthropic/claude-sonnet-5",
+  codex: "openai/gpt-5.5",
+};
+
+/** Model a subscription auth switches to when picked; null keeps the current model. */
+export function personaAuthDefaultModel(auth: PersonaAuth): string | null {
+  return auth === "api" ? null : SUBSCRIPTION_DEFAULT_MODEL[auth];
+}
+
+/** Launch fields for `auth`; subscriptions run the matching CLI harness in Docker. */
+export function personaAuthLaunchFields(auth: PersonaAuth): {
+  mode?: "force_docker";
+  agentName?: string;
+  cliSubscription?: boolean;
+} {
+  if (auth === "api") return {};
+  return {
+    mode: "force_docker",
+    agentName: SUBSCRIPTION_AGENT_BY_AUTH[auth],
+    cliSubscription: true,
+  };
+}
+
+/** Persona models `auth` can bill — a CLI subscription pins one provider. */
+export function personaAuthModelOptions(
+  auth: PersonaAuth,
+  options: CockpitSelectOption[],
+): CockpitSelectOption[] {
+  if (auth === "api") return options;
+  const models = webPersonaModelSelectOptions(SUBSCRIPTION_AGENT_BY_AUTH[auth], options);
+  return auth === "codex" ? models.filter((opt) => CODEX_SUBSCRIPTION_MODELS.has(opt.value)) : models;
+}
+
 const CAPABILITY_TIER_LABELS: Record<AgentCapabilityTier, string> = {
   light: "Light",
   standard: "Standard",
